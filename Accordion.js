@@ -74,17 +74,18 @@ export default class Accordion extends Component {
     const {
       activeSections,
       containerStyle,
-      sectionContainerStyle,
       expandFromBottom,
       sections,
       underlayColor,
       touchableProps,
       touchableComponent: Touchable,
+      sectionContainerComponent: SectionContainer,
       onAnimationEnd,
       renderContent,
       renderHeader,
       renderFooter,
       renderSectionTitle,
+      section
     } = this.props;
 
     const renderCollapsible = (section, key) => (
@@ -100,7 +101,7 @@ export default class Accordion extends Component {
     return (
       <View style={containerStyle} {...viewProps}>
         {sections.map((section, key) => (
-          <View key={key} style={sectionContainerStyle}>
+          <SectionContainer key={key} isActive={activeSections.includes(key)}>
             {renderSectionTitle(section, key, activeSections.includes(key))}
 
             {expandFromBottom && renderCollapsible(section, key)}
@@ -127,7 +128,7 @@ export default class Accordion extends Component {
                 activeSections.includes(key),
                 sections
               )}
-          </View>
+          </SectionContainer>
         ))}
       </View>
     );
