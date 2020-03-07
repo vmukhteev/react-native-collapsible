@@ -1,11 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, TouchableHighlight } from 'react-native';
+import { View, TouchableHighlight, Text } from 'react-native';
 import Collapsible from './Collapsible';
 import { ViewPropTypes } from './config';
 
 const COLLAPSIBLE_PROPS = Object.keys(Collapsible.propTypes);
 const VIEW_PROPS = Object.keys(ViewPropTypes);
+
+const Section = ({ isActive, style, children, onLayout, ...props }) => {
+  return (
+    <View
+      {...props}
+      style={style}
+      onLayout={({ nativeEvent: { layout } }) => {
+        if (isActive && onLayout) {
+          onLayout(layout);
+        }
+      }}
+    >
+      {children}
+    </View>
+  );
+};
 
 export default class Accordion extends Component {
   static propTypes = {
@@ -26,7 +42,7 @@ export default class Accordion extends Component {
     expandFromBottom: PropTypes.bool,
     expandMultiple: PropTypes.bool,
     onAnimationEnd: PropTypes.func,
-    sectionContainerStyle: ViewPropTypes.style,
+    sectionStyle: ViewPropTypes.style,
     containerStyle: ViewPropTypes.style,
   };
 
@@ -38,7 +54,6 @@ export default class Accordion extends Component {
     touchableComponent: TouchableHighlight,
     renderSectionTitle: () => null,
     onAnimationEnd: () => null,
-    sectionContainerStyle: {},
   };
 
   _toggleSection(section) {
@@ -79,13 +94,14 @@ export default class Accordion extends Component {
       underlayColor,
       touchableProps,
       touchableComponent: Touchable,
-      sectionContainerComponent: SectionContainer,
       onAnimationEnd,
       renderContent,
       renderHeader,
       renderFooter,
       renderSectionTitle,
-      section
+      onExpand,
+      sectionStyle,
+      sectionStyleFirst,
     } = this.props;
 
     const renderCollapsible = (section, key) => (
@@ -101,7 +117,12 @@ export default class Accordion extends Component {
     return (
       <View style={containerStyle} {...viewProps}>
         {sections.map((section, key) => (
-          <SectionContainer key={key} isActive={activeSections.includes(key)}>
+          <Section
+            key={key}
+            isActive={activeSections.includes(key)}
+            onLayout={onExpand}
+            style={[sectionStyle, key === 0 && sectionStyleFirst].flat()}
+          >
             {renderSectionTitle(section, key, activeSections.includes(key))}
 
             {expandFromBottom && renderCollapsible(section, key)}
@@ -128,7 +149,7 @@ export default class Accordion extends Component {
                 activeSections.includes(key),
                 sections
               )}
-          </SectionContainer>
+          </Section>
         ))}
       </View>
     );
